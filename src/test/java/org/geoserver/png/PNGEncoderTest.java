@@ -10,7 +10,7 @@ import java.util.zip.Deflater;
 
 import org.geoserver.png.ng.FilterType;
 import org.geoserver.png.ng.PngEncoder;
-import org.geoserver.png.ng.providers.BufferedImageABGRByteProvider;
+import org.geoserver.png.ng.providers.RasterByteABGRProvider;
 import org.geoserver.png.ng.providers.ScanlineProvider;
 import org.junit.Test;
 
@@ -21,7 +21,7 @@ public class PNGEncoderTest {
     @Test
     public void testWriteRGB() throws IOException {
         BufferedImage image = getImage(BufferedImage.TYPE_4BYTE_ABGR);
-        ScanlineProvider scanlines = new BufferedImageABGRByteProvider(image);
+        ScanlineProvider scanlines = new RasterByteABGRProvider(image.getData(), true);
         Deflater deflater = new Deflater(4);
         PngEncoder encoder = new PngEncoder(scanlines, deflater, FilterType.None);
 

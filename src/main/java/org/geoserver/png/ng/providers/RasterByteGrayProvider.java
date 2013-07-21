@@ -3,18 +3,19 @@ package org.geoserver.png.ng.providers;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
+import java.awt.image.Raster;
 
 import org.geoserver.png.ng.ColorType;
 
 /**
  * A scanline provider optimized for BufferedImage with {@link BufferedImage#TYPE_BYTE_INDEXED} or
- * {@link BufferedImage#TYPE_4BYTE_ABGR} types
+ * {@link BufferedImage#TYPE_BYTE_GRAY} types
  * 
  * @author Andrea Aime - GeoSolutions
  */
-public class BufferedImageGrayByteProvider implements ScanlineProvider {
+public class RasterByteGrayProvider implements ScanlineProvider {
 
-    final BufferedImage image;
+    final Raster raster;
 
     final byte[] bytes;
 
@@ -22,20 +23,20 @@ public class BufferedImageGrayByteProvider implements ScanlineProvider {
 
     final byte[] scanline;
 
-    public BufferedImageGrayByteProvider(BufferedImage image) {
-        this.image = image;
-        this.bytes = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-        this.scanline = new byte[image.getWidth()];
+    public RasterByteGrayProvider(Raster raster) {
+        this.raster = raster;
+        this.bytes = ((DataBufferByte) raster.getDataBuffer()).getData();
+        this.scanline = new byte[raster.getWidth()];
     }
 
     @Override
     public int getWidth() {
-        return image.getWidth();
+        return raster.getWidth();
     }
 
     @Override
     public int getHeight() {
-        return image.getHeight();
+        return raster.getHeight();
     }
 
     @Override
@@ -50,12 +51,12 @@ public class BufferedImageGrayByteProvider implements ScanlineProvider {
 
     @Override
     public byte[] next() {
-        if (this.currentRow == this.image.getHeight()) {
+        if (this.currentRow == this.raster.getHeight()) {
             return null;
         }
 
-        final int width = image.getWidth();
-        System.arraycopy(bytes, currentRow * width, scanline, 0, image.getWidth());
+        final int width = raster.getWidth();
+        System.arraycopy(bytes, currentRow * width, scanline, 0, raster.getWidth());
 
         currentRow++;
         return scanline;

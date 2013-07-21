@@ -6,8 +6,12 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.Deflater;
 
@@ -54,7 +58,10 @@ public class PngSuiteImagesTest {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         encoder.encode(bos);
 
-        ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+        byte[] bytes = bos.toByteArray();
+        writeToFile(new File("./target/roundTripNone", sourceFile.getName()), bytes);
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
         BufferedImage image = ImageIO.read(bis);
 
         assertEquals(input.getWidth(), image.getWidth());
@@ -68,4 +75,19 @@ public class PngSuiteImagesTest {
             }
         }
     }
+
+    private void writeToFile(File file, byte[] bytes) throws IOException {
+        File parent = file.getParentFile();
+        parent.mkdirs();
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            fos.write(bytes);
+        } finally {
+            if (fos != null) {
+                fos.close();
+            }
+        }
+    }
+
 }

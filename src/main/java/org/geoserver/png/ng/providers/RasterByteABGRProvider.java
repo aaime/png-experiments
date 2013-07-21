@@ -1,21 +1,20 @@
 package org.geoserver.png.ng.providers;
 
-import java.awt.image.BufferedImage;
 import java.awt.image.ComponentSampleModel;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
+import java.awt.image.Raster;
 
 import org.geoserver.png.ng.ColorType;
 
 /**
- * A scanline provider optimized for BufferedImage with {@link BufferedImage#TYPE_3BYTE_BGR} or
- * {@link BufferedImage#TYPE_4BYTE_ABGR} types
+ * A scanline provider optimized for Raster objects containig a 8bit BGR or ABGR image
  * 
  * @author Andrea Aime - GeoSolutions
  */
-public final class BufferedImageABGRByteProvider implements ScanlineProvider {
+public final class RasterByteABGRProvider implements ScanlineProvider {
 
-    final BufferedImage image;
+    final Raster raster;
 
     final byte[] bytes;
 
@@ -31,29 +30,29 @@ public final class BufferedImageABGRByteProvider implements ScanlineProvider {
 
     final boolean bgrOrder;
 
-    public BufferedImageABGRByteProvider(BufferedImage image) {
-        this.image = image;
-        bytes = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-        hasAlpha = image.getColorModel().hasAlpha();
+    public RasterByteABGRProvider(Raster raster, boolean hasAlpha) {
+        this.raster = raster;
+        bytes = ((DataBufferByte) raster.getDataBuffer()).getData();
+        this.hasAlpha = hasAlpha;
         if (hasAlpha) {
-            rowLength = image.getWidth() * 4;
+            rowLength = raster.getWidth() * 4;
             colorType = ColorType.RGBA;
         } else {
-            rowLength = image.getWidth() * 3;
+            rowLength = raster.getWidth() * 3;
             colorType = ColorType.RGB;
         }
-        bgrOrder = ((ComponentSampleModel) image.getSampleModel()).getBandOffsets()[0] != 0;
+        bgrOrder = ((ComponentSampleModel) raster.getSampleModel()).getBandOffsets()[0] != 0;
         row = new byte[rowLength];
     }
 
     @Override
     public int getWidth() {
-        return image.getWidth();
+        return  raster.getWidth();
     }
 
     @Override
     public int getHeight() {
-        return image.getHeight();
+        return raster.getHeight();
     }
 
     @Override
@@ -68,7 +67,7 @@ public final class BufferedImageABGRByteProvider implements ScanlineProvider {
 
     @Override
     public byte[] next() {
-        if (this.currentRow == this.image.getHeight()) {
+        if (this.currentRow == this.raster.getHeight()) {
             return null;
         }
 

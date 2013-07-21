@@ -3,6 +3,7 @@ package org.geoserver.png.ng.providers;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.awt.image.IndexColorModel;
+import java.awt.image.Raster;
 import java.awt.image.SinglePixelPackedSampleModel;
 
 import org.geoserver.png.ng.ColorType;
@@ -13,9 +14,9 @@ import org.geoserver.png.ng.ColorType;
  * 
  * @author Andrea Aime - GeoSolutions
  */
-public final class BufferedImageIntProvider implements ScanlineProvider {
+public final class RasterIntABGRProvider implements ScanlineProvider {
 
-    final BufferedImage image;
+    final Raster raster;
 
     final int[] pixels;
 
@@ -31,10 +32,10 @@ public final class BufferedImageIntProvider implements ScanlineProvider {
 
     int currentRow = 0;
 
-    public BufferedImageIntProvider(BufferedImage image) {
-        this.image = image;
-        pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-        hasAlpha = image.getColorModel().hasAlpha();
+    public RasterIntABGRProvider(Raster raster, boolean hasAlpha) {
+        this.raster = raster;
+        pixels = ((DataBufferInt) raster.getDataBuffer()).getData();
+        this.hasAlpha = hasAlpha;
         final int bpp;
         if (hasAlpha) {
             bpp = 4;
@@ -43,20 +44,20 @@ public final class BufferedImageIntProvider implements ScanlineProvider {
         } else {
             bpp = 3;
             colorType = ColorType.RGB;
-            bgrOrder = ((SinglePixelPackedSampleModel) image.getSampleModel()).getBitOffsets()[0] != 0;
+            bgrOrder = ((SinglePixelPackedSampleModel) raster.getSampleModel()).getBitOffsets()[0] != 0;
         }
-        rowLength = image.getWidth() * bpp;
+        rowLength = raster.getWidth() * bpp;
         row = new byte[rowLength];
     }
 
     @Override
     public int getWidth() {
-        return image.getWidth();
+        return raster.getWidth();
     }
 
     @Override
     public int getHeight() {
-        return image.getHeight();
+        return raster.getHeight();
     }
 
     @Override
@@ -71,11 +72,11 @@ public final class BufferedImageIntProvider implements ScanlineProvider {
 
     @Override
     public byte[] next() {
-        if (this.currentRow == this.image.getHeight()) {
+        if (this.currentRow == this.raster.getHeight()) {
             return null;
         }
 
-        int pxIdx = image.getWidth() * currentRow;
+        int pxIdx = raster.getWidth() * currentRow;
         int i = 0;
         if (hasAlpha) {
             while (i < rowLength) {

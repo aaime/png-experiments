@@ -2,6 +2,7 @@ package org.geoserver.png.ng.providers;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
+import java.awt.image.Raster;
 
 import org.geoserver.png.ng.ColorType;
 
@@ -11,10 +12,13 @@ import org.geoserver.png.ng.ColorType;
  * 
  * @author Andrea Aime - GeoSolutions
  */
-public final class BufferedImageByteIndexedProvider extends BufferedImageGrayByteProvider {
+public final class RasterByteIndexedProvider extends RasterByteGrayProvider {
 
-    public BufferedImageByteIndexedProvider(BufferedImage image) {
-        super(image);
+    private final IndexColorModel palette;
+
+    public RasterByteIndexedProvider(Raster raster, IndexColorModel palette) {
+        super(raster);
+        this.palette = palette;
     }
 
     @Override
@@ -24,7 +28,7 @@ public final class BufferedImageByteIndexedProvider extends BufferedImageGrayByt
 
     @Override
     public IndexColorModel getPalette() {
-        return (IndexColorModel) image.getColorModel();
+        return palette;
     }
 
 }
