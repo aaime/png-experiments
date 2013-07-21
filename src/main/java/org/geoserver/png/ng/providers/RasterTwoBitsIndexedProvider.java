@@ -12,16 +12,16 @@ import org.geoserver.png.ng.ColorType;
  * 
  * @author Andrea Aime - GeoSolutions
  */
-public final class RasterByteIndexedProvider extends RasterByteGrayProvider {
+public final class RasterTwoBitsIndexedProvider extends RasterTwoBitsGrayProvider {
 
     private final IndexColorModel palette;
 
-    public RasterByteIndexedProvider(Raster raster, IndexColorModel palette) {
+    public RasterTwoBitsIndexedProvider(Raster raster, IndexColorModel palette) {
         super(raster);
         this.palette = palette;
         int pixelSize = palette.getPixelSize();
-        if(pixelSize != 8) {
-            throw new IllegalArgumentException("Illegal index color mode, expected 8 bits per pixel but it's " + pixelSize);
+        if(pixelSize != 2) {
+            throw new IllegalArgumentException("Illegal index color mode, expected 2 bits per pixel but it's " + pixelSize);
         }
     }
 
@@ -37,7 +37,9 @@ public final class RasterByteIndexedProvider extends RasterByteGrayProvider {
     
     @Override
     public byte getBitDepth() {
-        return (byte) palette.getPixelSize();
+        return 2;
     }
+    
+
 
 }

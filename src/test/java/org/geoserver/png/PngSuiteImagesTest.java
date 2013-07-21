@@ -1,17 +1,15 @@
 package org.geoserver.png;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.zip.Deflater;
 
@@ -21,6 +19,7 @@ import org.geoserver.png.ng.FilterType;
 import org.geoserver.png.ng.PngEncoder;
 import org.geoserver.png.ng.providers.ScanlineProvider;
 import org.geoserver.png.ng.providers.ScanlineProviderFactory;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -33,6 +32,11 @@ public class PngSuiteImagesTest {
 
     public PngSuiteImagesTest(File sourceFile) {
         this.sourceFile = sourceFile;
+    }
+    
+    @BeforeClass
+    public static void disableNativeCodecs() {
+        System.setProperty("com.sun.media.imageio.disableCodecLib", "true");
     }
 
     @Parameters(name = "{0}")

@@ -7,13 +7,15 @@ import java.awt.image.Raster;
 
 import org.geoserver.png.ng.ColorType;
 
+import sun.awt.image.BytePackedRaster;
+
 /**
  * A scanline provider optimized for BufferedImage with {@link BufferedImage#TYPE_BYTE_INDEXED} or
- * {@link BufferedImage#TYPE_BYTE_GRAY} types
+ * {@link BufferedImage#TYPE_4BYTE_ABGR} types
  * 
  * @author Andrea Aime - GeoSolutions
  */
-public class RasterByteGrayProvider implements ScanlineProvider {
+public class RasterTwoBitsGrayProvider implements ScanlineProvider {
 
     final Raster raster;
 
@@ -23,16 +25,14 @@ public class RasterByteGrayProvider implements ScanlineProvider {
 
     final byte[] scanline;
 
-    public RasterByteGrayProvider(Raster raster) {
+    public RasterTwoBitsGrayProvider(Raster raster) {
         this.raster = raster;
         this.bytes = ((DataBufferByte) raster.getDataBuffer()).getData();
-        this.scanline = new byte[raster.getWidth()];
-    }
-    
-    protected RasterByteGrayProvider(Raster raster, byte[] scanline) {
-        this.raster = raster;
-        this.bytes = ((DataBufferByte) raster.getDataBuffer()).getData();
-        this.scanline = scanline;
+        int rowLength = (raster.getWidth() + 2) / 4;
+        this.scanline = new byte[rowLength];
+        if(!(raster instanceof BytePackedRaster)) {
+            throw new IllegalArgumentException("The raster was supposed to have a byte packed raster type");
+        }
     }
 
     @Override
@@ -47,7 +47,7 @@ public class RasterByteGrayProvider implements ScanlineProvider {
 
     @Override
     public byte getBitDepth() {
-        return 8;
+        return 2;
     }
 
     @Override
@@ -56,21 +56,21 @@ public class RasterByteGrayProvider implements ScanlineProvider {
     }
 
     @Override
+    public IndexColorModel getPalette() {
+        return null;
+    }
+
+    @Override
     public byte[] next() {
         if (this.currentRow == this.raster.getHeight()) {
             return null;
         }
 
-        final int width = raster.getWidth();
-        System.arraycopy(bytes, currentRow * width, scanline, 0, raster.getWidth());
+        final int rowLength = scanline.length;
+        System.arraycopy(bytes, currentRow * rowLength, scanline, 0, rowLength);
 
         currentRow++;
         return scanline;
-    }
-
-    @Override
-    public IndexColorModel getPalette() {
-        return null;
     }
 
 }
