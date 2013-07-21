@@ -1,6 +1,5 @@
 package org.geoserver.png.ng.providers;
 
-import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
@@ -9,8 +8,7 @@ import java.awt.image.SinglePixelPackedSampleModel;
 import org.geoserver.png.ng.ColorType;
 
 /**
- * A scanline provider optimized for BufferedImage with {@link BufferedImage#TYPE_INT_ARGB} or
- * {@link BufferedImage#TYPE_INT_RGB} or {@link BufferedImage#TYPE_INT_BGR} types
+ * A scanline provider optimized for rasters with int packed RGB or RGBA pixels
  * 
  * @author Andrea Aime - GeoSolutions
  */
@@ -87,7 +85,7 @@ public final class RasterIntABGRProvider implements ScanlineProvider {
                 row[i++] = (byte) ((color) & 0xff);
                 row[i++] = (byte) ((color >> 24) & 0xff);
             }
-        } else if(bgrOrder){
+        } else if (bgrOrder) {
             while (i < rowLength) {
                 final int color = pixels[pxIdx++];
 
@@ -107,7 +105,7 @@ public final class RasterIntABGRProvider implements ScanlineProvider {
         currentRow++;
         return row;
     }
-    
+
     @Override
     public IndexColorModel getPalette() {
         // no palette

@@ -1,6 +1,5 @@
 package org.geoserver.png.ng.providers;
 
-import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
@@ -10,8 +9,7 @@ import org.geoserver.png.ng.ColorType;
 import sun.awt.image.BytePackedRaster;
 
 /**
- * A scanline provider optimized for BufferedImage with {@link BufferedImage#TYPE_BYTE_INDEXED} or
- * {@link BufferedImage#TYPE_4BYTE_ABGR} types
+ * A scanline provider optimized rasters with one bit b/w pixels
  * 
  * @author Andrea Aime - GeoSolutions
  */
@@ -30,8 +28,9 @@ public class RasterOneBitGrayProvider implements ScanlineProvider {
         this.bytes = ((DataBufferByte) raster.getDataBuffer()).getData();
         int rowLength = (raster.getWidth() + 4) / 8;
         this.scanline = new byte[rowLength];
-        if(!(raster instanceof BytePackedRaster)) {
-            throw new IllegalArgumentException("The raster was supposed to have a byte packed raster type");
+        if (!(raster instanceof BytePackedRaster)) {
+            throw new IllegalArgumentException(
+                    "The raster was supposed to have a byte packed raster type");
         }
     }
 

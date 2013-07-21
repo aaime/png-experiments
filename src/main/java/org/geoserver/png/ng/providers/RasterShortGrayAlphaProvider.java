@@ -8,7 +8,7 @@ import java.awt.image.Raster;
 import org.geoserver.png.ng.ColorType;
 
 /**
- * A scanline provider optimized for a Raster with 16 bit gray pixels
+ * A scanline provider optimized for a Raster with 16 bit gray + 16 bits alpha
  * 
  * @author Andrea Aime - GeoSolutions
  */
@@ -29,7 +29,8 @@ public class RasterShortGrayAlphaProvider implements ScanlineProvider {
         this.shorts = ((DataBufferUShort) raster.getDataBuffer()).getData();
         int rowLength = raster.getWidth() * 4;
         this.scanline = new byte[rowLength];
-        this.alphaFirst = ((PixelInterleavedSampleModel) raster.getSampleModel()).getBandOffsets()[0] != 0;
+        int[] bandOffsets = ((PixelInterleavedSampleModel) raster.getSampleModel()).getBandOffsets();
+        this.alphaFirst = bandOffsets[0] != 0;
     }
 
     @Override
@@ -61,15 +62,17 @@ public class RasterShortGrayAlphaProvider implements ScanlineProvider {
         final int width = raster.getWidth();
         int shortsIdx = width * currentRow;
         int i = 0;
-        while (i < scanline.length) {
-            if(alphaFirst) {
+        if(alphaFirst) {
+            while (i < scanline.length) {
                 final short alpha = shorts[shortsIdx++];
                 final short gray = shorts[shortsIdx++];
                 scanline[i++] = (byte) ((gray >> 8) & 0xFF);
                 scanline[i++] = (byte) (gray & 0xFF);
                 scanline[i++] = (byte) ((alpha >> 8) & 0xFF);
                 scanline[i++] = (byte) (alpha & 0xFF);
-            } else {
+            } 
+        } else {
+            while (i < scanline.length) {
                 final short gray = shorts[shortsIdx++];
                 final short alpha = shorts[shortsIdx++];
                 scanline[i++] = (byte) ((gray >> 8) & 0xFF);

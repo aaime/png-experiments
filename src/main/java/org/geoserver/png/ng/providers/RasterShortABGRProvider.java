@@ -8,7 +8,7 @@ import java.awt.image.Raster;
 import org.geoserver.png.ng.ColorType;
 
 /**
- * A scanline provider optimized for Raster objects containig a 16bit BGR or ABGR image
+ * A scanline provider optimized for Raster objects containing a 16bit BGR or ABGR image
  * 
  * @author Andrea Aime - GeoSolutions
  */
@@ -75,7 +75,7 @@ public final class RasterShortABGRProvider implements ScanlineProvider {
         int i = 0;
         if (hasAlpha) {
             if (bgrOrder) {
-                while (i < rowLength * 2) {
+                while (i < row.length) {
                     final short a = shorts[shortsIdx++];
                     final short b = shorts[shortsIdx++];
                     final short g = shorts[shortsIdx++];
@@ -90,7 +90,7 @@ public final class RasterShortABGRProvider implements ScanlineProvider {
                     row[i++] = (byte) (a & 0xFF);
                 }
             } else {
-                while (i < rowLength * 2) {
+                while (i < row.length) {
                     final short r = shorts[shortsIdx++];
                     final short g = shorts[shortsIdx++];
                     final short b = shorts[shortsIdx++];
@@ -107,7 +107,7 @@ public final class RasterShortABGRProvider implements ScanlineProvider {
             }
         } else {
             if(bgrOrder) {
-                while (i < rowLength * 2) {
+                while (i < row.length) {
                     final short b = shorts[shortsIdx++];
                     final short g = shorts[shortsIdx++];
                     final short r = shorts[shortsIdx++];
@@ -119,7 +119,7 @@ public final class RasterShortABGRProvider implements ScanlineProvider {
                     row[i++] = (byte) (b & 0xFF);
                 }
             } else {
-                while (i < rowLength * 2) {
+                while (i < row.length) {
                     final short r = shorts[shortsIdx++];
                     final short g = shorts[shortsIdx++];
                     final short b = shorts[shortsIdx++];

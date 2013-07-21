@@ -54,12 +54,12 @@ public class RasterShortGrayProvider implements ScanlineProvider {
         }
 
         final int width = raster.getWidth();
-        int intsIdx = width * currentRow;
+        int shortsIdx = width * currentRow;
         int i = 0;
         while (i < scanline.length) {
-            short value = shorts[intsIdx++];
-            scanline[i++] = (byte) ((value >> 8) & 0xFF);
-            scanline[i++] = (byte) (value & 0xFF);
+            short gray = shorts[shortsIdx++];
+            scanline[i++] = (byte) ((gray >> 8) & 0xFF);
+            scanline[i++] = (byte) (gray & 0xFF);
         }
 
         currentRow++;

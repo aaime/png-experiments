@@ -1,6 +1,5 @@
 package org.geoserver.png.ng.providers;
 
-import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
@@ -10,8 +9,7 @@ import org.geoserver.png.ng.ColorType;
 import sun.awt.image.BytePackedRaster;
 
 /**
- * A scanline provider optimized for BufferedImage with {@link BufferedImage#TYPE_BYTE_INDEXED} or
- * {@link BufferedImage#TYPE_4BYTE_ABGR} types
+ * A scanline provider optimized for rasters with 4-bit gray rasters
  * 
  * @author Andrea Aime - GeoSolutions
  */
