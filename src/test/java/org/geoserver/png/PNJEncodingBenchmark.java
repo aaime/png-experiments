@@ -26,6 +26,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import ar.com.hjg.pngj.FilterType;
 import ar.com.hjg.pngj.ImageInfo;
+import ar.com.hjg.pngj.ImageLineByte;
 import ar.com.hjg.pngj.PngWriter;
 import ar.com.hjg.pngj.chunks.PngChunkPLTE;
 import ar.com.hjg.pngj.chunks.PngChunkTRNS;
@@ -170,16 +171,9 @@ public class PNJEncodingBenchmark {
         }
 
         ScanlineProvider scanlines = ScanlineProviderFactory.getProvider(image);
-        byte[] rebased = new byte[image.getWidth() * colorModel.getNumColorComponents()];
         for (int row = 0; row < image.getHeight(); row++) {
             byte[] bytes = scanlines.next();
-            // final byte[] line = scanline.getBytes();
-            // if(scanline.getOffset() > 0) {
-            // System.arraycopy(line, scanline.getOffset(), rebased, 0, scanline.getLength());
-            // pw.writeRowByte(rebased, row);
-            // } else {
-            pw.writeRowByte(bytes, row);
-            // }
+            pw.writeRow(new ImageLineByte(ii, bytes));
 
         }
         pw.end();

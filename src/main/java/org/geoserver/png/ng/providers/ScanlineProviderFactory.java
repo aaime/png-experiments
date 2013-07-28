@@ -44,7 +44,7 @@ public class ScanlineProviderFactory {
                 } else if (sm.getNumBands() == 1) {
                     return new RasterShortGrayProvider(raster);
                 }
-            } else if (cm instanceof DirectColorModel && sm.getDataType() == DataBuffer.TYPE_BYTE) {
+            } else if (cm instanceof DirectColorModel && sm.getDataType() == DataBuffer.TYPE_INT) {
                 if (sm.getNumBands() == 3 || sm.getNumBands() == 4) {
                     return new RasterIntABGRProvider(raster, bi.getColorModel().hasAlpha());
                 } else if (sm.getNumBands() == 1) {

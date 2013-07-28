@@ -8,12 +8,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.Deflater;
 
@@ -38,6 +36,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import ar.com.hjg.pngj.ImageInfo;
+import ar.com.hjg.pngj.ImageLineByte;
 import ar.com.hjg.pngj.PngWriter;
 import ar.com.hjg.pngj.chunks.PngChunkPLTE;
 import ar.com.hjg.pngj.chunks.PngChunkTRNS;
@@ -46,7 +45,6 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 import com.carrotsearch.junitbenchmarks.annotation.AxisRange;
 import com.carrotsearch.junitbenchmarks.annotation.BenchmarkMethodChart;
-import com.keypoint.PngEncoderB;
 import com.sun.imageio.plugins.png.PNGImageWriterSpi;
 import com.sun.media.imageioimpl.plugins.png.CLibPNGImageWriterSpi;
 
@@ -61,8 +59,8 @@ public class BufferedImageEncodingBenchmark {
 
     private static Map<String, byte[]> pngs = new ConcurrentHashMap<String, byte[]>();
 
-//    @Rule
-//    public TestRule benchmarkRun = new BenchmarkRule();
+    @Rule
+    public TestRule benchmarkRun = new BenchmarkRule();
 
     private static int lastImageType = Integer.MIN_VALUE;
 
@@ -90,9 +88,9 @@ public class BufferedImageEncodingBenchmark {
 
     @Parameters(name = "{0}")
     public static Collection parameters() throws Exception {
-        String[] types = new String[] { "4BYTE_ABGR", "INT_ARGB", /* "3BYTE_BGR", "INT_BGR", 
-                "INT_RGB", "BYTE_INDEXED", "BYTE_GRAY" */ };
-        FilterType[] filters = new FilterType[] {FilterType.None, FilterType.Sub, FilterType.Up, /* FilterType.Average, FilterType.Paeth  */}; 
+        String[] types = new String[] { "4BYTE_ABGR", "INT_ARGB", "3BYTE_BGR", "INT_BGR", 
+                "INT_RGB", "BYTE_INDEXED", "BYTE_GRAY" };
+        FilterType[] filters = new FilterType[] {FilterType.None, /* FilterType.Sub, /* FilterType.Up, */ /* FilterType.Average, FilterType.Paeth  */}; 
         
         List<Object[]> parameters = new ArrayList<Object[]>();
         for (int i = 0; i < types.length; i++) {
@@ -193,17 +191,17 @@ public class BufferedImageEncodingBenchmark {
         }
     }
 
-    @Test
-    public void timeKeypointEncode() throws Exception {
-        PngEncoderB encoder = new PngEncoderB(image);
-        encoder.setEncodeAlpha(true);
-        encoder.setCompressionLevel(4);
-        int type = filterType.getType();
-        encoder.setFilter(type);
-        byte[] png = encoder.pngEncode(true);
-        collectPng("keypoint", png);
-    }
-
+//    @Test
+//    public void timeKeypointEncode() throws Exception {
+//        PngEncoderB encoder = new PngEncoderB(image);
+//        encoder.setEncodeAlpha(true);
+//        encoder.setCompressionLevel(4);
+//        int type = filterType.getType();
+//        encoder.setFilter(type);
+//        byte[] png = encoder.pngEncode(true);
+//        collectPng("keypoint", png);
+//    }
+//
     @Test
     public void timePNGJEncode() throws Exception {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -247,7 +245,7 @@ public class BufferedImageEncodingBenchmark {
             // System.arraycopy(line, scanline.getOffset(), rebased, 0, scanline.getLength());
             // pw.writeRowByte(rebased, row);
             // } else {
-            pw.writeRowByte(bytes, row);
+            pw.writeRow(new ImageLineByte(ii, bytes));
             // }
 
         }

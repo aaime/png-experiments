@@ -36,7 +36,9 @@ import org.junit.runners.MethodSorters;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import ar.com.hjg.pngj.IImageLine;
 import ar.com.hjg.pngj.ImageInfo;
+import ar.com.hjg.pngj.ImageLineByte;
 import ar.com.hjg.pngj.PngWriter;
 import ar.com.hjg.pngj.chunks.PngChunkPLTE;
 import ar.com.hjg.pngj.chunks.PngChunkTRNS;
@@ -83,7 +85,7 @@ public class SamplesEncodingBenchmark {
     @Parameters(name = "{0}")
     public static Collection parameters() throws Exception {
         String[] files = new String[] { "osmbox1.png", "osmbox2.png", "osmbox3.png", "osmbox4.png", "italy.jpg", "LandiscorSample2.jpg" };
-        int[] compressions = new int[] {5, 7, 9};
+        int[] compressions = new int[] {5 /*, 7, 9*/ };
         
         List<Object[]> parameters = new ArrayList<Object[]>();
         for (int i = 0; i < files.length; i++) {
@@ -171,15 +173,15 @@ public class SamplesEncodingBenchmark {
         timePNGJEncode(filterType, "pngj_auto");
     }
     
-    @Test
-    public void timePNGJEncodeDefault() throws Exception {
-        timePNGJEncode(ar.com.hjg.pngj.FilterType.FILTER_DEFAULT, "pngj_default");
-    }
-    
-    @Test
-    public void timePNGJEncodeAggressive() throws Exception {
-        timePNGJEncode(ar.com.hjg.pngj.FilterType.FILTER_AGGRESSIVE, "pngj_aggressive");
-    }
+//    @Test
+//    public void timePNGJEncodeDefault() throws Exception {
+//        timePNGJEncode(ar.com.hjg.pngj.FilterType.FILTER_DEFAULT, "pngj_default");
+//    }
+//    
+//    @Test
+//    public void timePNGJEncodeAggressive() throws Exception {
+//        timePNGJEncode(ar.com.hjg.pngj.FilterType.FILTER_AGGRESSIVE, "pngj_aggressive");
+//    }
 
     public void timePNGJEncode(ar.com.hjg.pngj.FilterType filterType, String name) throws Exception {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -216,7 +218,8 @@ public class SamplesEncodingBenchmark {
         ScanlineProvider scanlines = ScanlineProviderFactory.getProvider(image);
         for (int row = 0; row < image.getHeight(); row++) {
             byte[] bytes = scanlines.next();
-            pw.writeRowByte(bytes, row);
+            ImageLineByte il = new ImageLineByte(ii, bytes);
+            pw.writeRow(il);
         }
         pw.end();
         byte[] png = bos.toByteArray();
