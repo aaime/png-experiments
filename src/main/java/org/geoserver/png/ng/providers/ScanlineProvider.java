@@ -31,7 +31,7 @@ public interface ScanlineProvider {
     public ColorType getColorType();
 
     /**
-     * The next scanline, or null if not available
+     * The next scanline, or throws an exception if we got past the end of the image
      * 
      * @return
      */

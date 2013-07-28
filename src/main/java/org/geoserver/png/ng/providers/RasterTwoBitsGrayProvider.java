@@ -19,7 +19,7 @@ public class RasterTwoBitsGrayProvider implements ScanlineProvider {
 
     final byte[] bytes;
 
-    int currentRow = 0;
+    final ScanlineCursor cursor;
 
     final byte[] scanline;
 
@@ -31,6 +31,7 @@ public class RasterTwoBitsGrayProvider implements ScanlineProvider {
         if(!(raster instanceof BytePackedRaster)) {
             throw new IllegalArgumentException("The raster was supposed to have a byte packed raster type");
         }
+        this.cursor = new ScanlineCursor(raster);
     }
 
     @Override
@@ -60,14 +61,9 @@ public class RasterTwoBitsGrayProvider implements ScanlineProvider {
 
     @Override
     public byte[] next() {
-        if (this.currentRow == this.raster.getHeight()) {
-            return null;
-        }
-
         final int rowLength = scanline.length;
-        System.arraycopy(bytes, currentRow * rowLength, scanline, 0, rowLength);
+        System.arraycopy(bytes, cursor.next(), scanline, 0, rowLength);
 
-        currentRow++;
         return scanline;
     }
 

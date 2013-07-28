@@ -18,7 +18,7 @@ public class RasterShortGrayAlphaProvider implements ScanlineProvider {
 
     final short[] shorts;
 
-    int currentRow = 0;
+    final ScanlineCursor cursor;
 
     final byte[] scanline;
 
@@ -31,6 +31,7 @@ public class RasterShortGrayAlphaProvider implements ScanlineProvider {
         this.scanline = new byte[rowLength];
         int[] bandOffsets = ((PixelInterleavedSampleModel) raster.getSampleModel()).getBandOffsets();
         this.alphaFirst = bandOffsets[0] != 0;
+        this.cursor = new ScanlineCursor(raster);
     }
 
     @Override
@@ -55,12 +56,8 @@ public class RasterShortGrayAlphaProvider implements ScanlineProvider {
 
     @Override
     public byte[] next() {
-        if (this.currentRow == this.raster.getHeight()) {
-            return null;
-        }
-
         final int width = raster.getWidth();
-        int shortsIdx = width * currentRow;
+        int shortsIdx = cursor.next();
         int i = 0;
         if(alphaFirst) {
             while (i < scanline.length) {
@@ -82,7 +79,6 @@ public class RasterShortGrayAlphaProvider implements ScanlineProvider {
             }
         }
 
-        currentRow++;
         return scanline;
     }
 

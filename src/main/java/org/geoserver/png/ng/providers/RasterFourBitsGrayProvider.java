@@ -19,15 +19,16 @@ public class RasterFourBitsGrayProvider implements ScanlineProvider {
 
     final byte[] bytes;
 
-    int currentRow = 0;
-
     final byte[] scanline;
+
+    final ScanlineCursor cursor;
 
     public RasterFourBitsGrayProvider(Raster raster) {
         this.raster = raster;
         this.bytes = ((DataBufferByte) raster.getDataBuffer()).getData();
         int rowLength = (raster.getWidth() + 1) / 2;
         this.scanline = new byte[rowLength];
+        this.cursor = new ScanlineCursor(raster);
         if(!(raster instanceof BytePackedRaster)) {
             throw new IllegalArgumentException("The raster was supposed to have a byte packed raster type");
         }
@@ -60,14 +61,8 @@ public class RasterFourBitsGrayProvider implements ScanlineProvider {
 
     @Override
     public byte[] next() {
-        if (this.currentRow == this.raster.getHeight()) {
-            return null;
-        }
-
         final int rowLength = scanline.length;
-        System.arraycopy(bytes, currentRow * rowLength, scanline, 0, rowLength);
-
-        currentRow++;
+        System.arraycopy(bytes, cursor.next(), scanline, 0, rowLength);
         return scanline;
     }
 

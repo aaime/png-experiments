@@ -26,10 +26,10 @@ public final class RasterByteABGRProvider implements ScanlineProvider {
 
     final ColorType colorType;
 
-    int currentRow = 0;
-
     final boolean bgrOrder;
-
+    
+    final ScanlineCursor cursor;
+    
     public RasterByteABGRProvider(Raster raster, boolean hasAlpha) {
         this.raster = raster;
         bytes = ((DataBufferByte) raster.getDataBuffer()).getData();
@@ -41,13 +41,15 @@ public final class RasterByteABGRProvider implements ScanlineProvider {
             rowLength = raster.getWidth() * 3;
             colorType = ColorType.RGB;
         }
-        bgrOrder = ((ComponentSampleModel) raster.getSampleModel()).getBandOffsets()[0] != 0;
+        ComponentSampleModel sm = (ComponentSampleModel) raster.getSampleModel();
+        bgrOrder = sm.getBandOffsets()[0] != 0;
+        cursor = new ScanlineCursor(raster);
         row = new byte[rowLength];
     }
 
     @Override
     public int getWidth() {
-        return  raster.getWidth();
+        return raster.getWidth();
     }
 
     @Override
@@ -67,14 +69,12 @@ public final class RasterByteABGRProvider implements ScanlineProvider {
 
     @Override
     public byte[] next() {
-        if (this.currentRow == this.raster.getHeight()) {
-            return null;
-        }
-
-        int bytesIdx = rowLength * currentRow;
+        int bytesIdx = cursor.next();
         int i = 0;
-        if (hasAlpha) {
-            if (bgrOrder) {
+        if (!bgrOrder) {
+            System.arraycopy(bytes, bytesIdx, row, 0, rowLength);
+        } else {
+            if (hasAlpha) {
                 while (i < rowLength) {
                     final byte a = bytes[bytesIdx++];
                     final byte b = bytes[bytesIdx++];
@@ -87,15 +87,6 @@ public final class RasterByteABGRProvider implements ScanlineProvider {
                 }
             } else {
                 while (i < rowLength) {
-                    row[i++] = bytes[bytesIdx++];
-                    row[i++] = bytes[bytesIdx++];
-                    row[i++] = bytes[bytesIdx++];
-                    row[i++] = bytes[bytesIdx++];
-                }
-            }
-        } else {
-            if(bgrOrder) {
-                while (i < rowLength) {
                     final byte b = bytes[bytesIdx++];
                     final byte g = bytes[bytesIdx++];
                     final byte r = bytes[bytesIdx++];
@@ -103,16 +94,8 @@ public final class RasterByteABGRProvider implements ScanlineProvider {
                     row[i++] = g;
                     row[i++] = b;
                 }
-            } else {
-                while (i < rowLength) {
-                    row[i++] = bytes[bytesIdx++];
-                    row[i++] = bytes[bytesIdx++];
-                    row[i++] = bytes[bytesIdx++];
-                }
             }
-
         }
-        currentRow++;
         return row;
     }
 

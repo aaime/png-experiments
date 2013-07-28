@@ -20,17 +20,18 @@ public class RasterByteGrayAlphaProvider implements ScanlineProvider {
     int currentRow = 0;
 
     final byte[] scanline;
+    
+    final ScanlineCursor cursor;
 
     public RasterByteGrayAlphaProvider(Raster raster) {
-        this.raster = raster;
-        this.bytes = ((DataBufferByte) raster.getDataBuffer()).getData();
-        this.scanline = new byte[raster.getWidth() * 2];
+        this(raster, new byte[raster.getWidth() * 2]);
     }
 
     protected RasterByteGrayAlphaProvider(Raster raster, byte[] scanline) {
         this.raster = raster;
         this.bytes = ((DataBufferByte) raster.getDataBuffer()).getData();
         this.scanline = scanline;
+        this.cursor = new ScanlineCursor(raster);
     }
 
     @Override
@@ -55,12 +56,7 @@ public class RasterByteGrayAlphaProvider implements ScanlineProvider {
 
     @Override
     public byte[] next() {
-        if (this.currentRow == this.raster.getHeight()) {
-            return null;
-        }
-
-        final int width = raster.getWidth();
-        System.arraycopy(bytes, currentRow * width * 2, scanline, 0, scanline.length);
+        System.arraycopy(bytes, cursor.next(), scanline, 0, scanline.length);
 
         currentRow++;
         return scanline;

@@ -26,7 +26,7 @@ public final class RasterShortABGRProvider implements ScanlineProvider {
 
     final ColorType colorType;
 
-    int currentRow = 0;
+    final ScanlineCursor cursor;
 
     final boolean bgrOrder;
 
@@ -43,6 +43,7 @@ public final class RasterShortABGRProvider implements ScanlineProvider {
         }
         bgrOrder = ((ComponentSampleModel) raster.getSampleModel()).getBandOffsets()[0] != 0;
         row = new byte[rowLength * 2];
+        cursor = new ScanlineCursor(raster);
     }
 
     @Override
@@ -67,11 +68,7 @@ public final class RasterShortABGRProvider implements ScanlineProvider {
 
     @Override
     public byte[] next() {
-        if (this.currentRow == this.raster.getHeight()) {
-            return null;
-        }
-
-        int shortsIdx = rowLength * currentRow;
+        int shortsIdx = cursor.next();
         int i = 0;
         if (hasAlpha) {
             if (bgrOrder) {
@@ -133,7 +130,6 @@ public final class RasterShortABGRProvider implements ScanlineProvider {
             }
 
         }
-        currentRow++;
         return row;
     }
 

@@ -28,12 +28,13 @@ public final class RasterIntABGRProvider implements ScanlineProvider {
 
     final boolean bgrOrder;
 
-    int currentRow = 0;
+    final ScanlineCursor cursor;
 
     public RasterIntABGRProvider(Raster raster, boolean hasAlpha) {
         this.raster = raster;
         pixels = ((DataBufferInt) raster.getDataBuffer()).getData();
         this.hasAlpha = hasAlpha;
+        this.cursor = new ScanlineCursor(raster);
         final int bpp;
         if (hasAlpha) {
             bpp = 4;
@@ -70,11 +71,7 @@ public final class RasterIntABGRProvider implements ScanlineProvider {
 
     @Override
     public byte[] next() {
-        if (this.currentRow == this.raster.getHeight()) {
-            return null;
-        }
-
-        int pxIdx = raster.getWidth() * currentRow;
+        int pxIdx = cursor.next();
         int i = 0;
         if (hasAlpha) {
             while (i < rowLength) {
@@ -102,7 +99,6 @@ public final class RasterIntABGRProvider implements ScanlineProvider {
                 row[i++] = (byte) ((color) & 0xff);
             }
         }
-        currentRow++;
         return row;
     }
 

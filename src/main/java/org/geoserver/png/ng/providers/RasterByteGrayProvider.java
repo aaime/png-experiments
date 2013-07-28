@@ -1,5 +1,6 @@
 package org.geoserver.png.ng.providers;
 
+import java.awt.image.ComponentSampleModel;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
@@ -21,16 +22,17 @@ public class RasterByteGrayProvider implements ScanlineProvider {
 
     final byte[] scanline;
 
+    final ScanlineCursor cursor;
+
     public RasterByteGrayProvider(Raster raster) {
-        this.raster = raster;
-        this.bytes = ((DataBufferByte) raster.getDataBuffer()).getData();
-        this.scanline = new byte[raster.getWidth()];
+        this(raster, new byte[raster.getWidth()]);
     }
-    
+
     protected RasterByteGrayProvider(Raster raster, byte[] scanline) {
         this.raster = raster;
         this.bytes = ((DataBufferByte) raster.getDataBuffer()).getData();
         this.scanline = scanline;
+        this.cursor = new ScanlineCursor(raster);
     }
 
     @Override
@@ -59,8 +61,7 @@ public class RasterByteGrayProvider implements ScanlineProvider {
             return null;
         }
 
-        final int width = raster.getWidth();
-        System.arraycopy(bytes, currentRow * width, scanline, 0, raster.getWidth());
+        System.arraycopy(bytes, cursor.next(), scanline, 0, raster.getWidth());
 
         currentRow++;
         return scanline;

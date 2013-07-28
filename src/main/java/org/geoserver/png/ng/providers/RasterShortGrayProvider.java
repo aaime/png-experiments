@@ -17,7 +17,7 @@ public class RasterShortGrayProvider implements ScanlineProvider {
 
     final short[] shorts;
 
-    int currentRow = 0;
+    final ScanlineCursor cursor;
 
     final byte[] scanline;
 
@@ -25,6 +25,7 @@ public class RasterShortGrayProvider implements ScanlineProvider {
         this.raster = raster;
         this.shorts = ((DataBufferUShort) raster.getDataBuffer()).getData();
         this.scanline = new byte[raster.getWidth() * 2];
+        this.cursor = new ScanlineCursor(raster);
     }
 
     @Override
@@ -49,12 +50,8 @@ public class RasterShortGrayProvider implements ScanlineProvider {
 
     @Override
     public byte[] next() {
-        if (this.currentRow == this.raster.getHeight()) {
-            return null;
-        }
-
         final int width = raster.getWidth();
-        int shortsIdx = width * currentRow;
+        int shortsIdx = cursor.next();
         int i = 0;
         while (i < scanline.length) {
             short gray = shorts[shortsIdx++];
@@ -62,7 +59,6 @@ public class RasterShortGrayProvider implements ScanlineProvider {
             scanline[i++] = (byte) (gray & 0xFF);
         }
 
-        currentRow++;
         return scanline;
     }
 

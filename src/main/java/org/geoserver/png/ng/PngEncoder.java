@@ -147,8 +147,9 @@ public class PngEncoder {
 
 
         // write the scanlines
-        byte[] scanline;
-        while ((scanline = scanlines.next()) != null) {
+        final int height = scanlines.getHeight();
+        for(int i = 0; i < height; i++) {
+            byte[] scanline = scanlines.next();
             dos.write(filterType.getType());
             if(filter != null) {
                 scanline = filter.filter(scanline);

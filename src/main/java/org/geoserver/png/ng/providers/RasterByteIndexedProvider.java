@@ -36,7 +36,8 @@ public final class RasterByteIndexedProvider extends RasterByteGrayProvider {
 
     @Override
     public byte getBitDepth() {
-        return (byte) palette.getPixelSize();
+        byte pixelSize = (byte) palette.getPixelSize();
+        return pixelSize;
     }
 
 }
