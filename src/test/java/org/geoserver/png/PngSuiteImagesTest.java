@@ -70,7 +70,7 @@ public class PngSuiteImagesTest {
     public void testRoundTripFilterNone() throws Exception {
         BufferedImage input = ImageIO.read(sourceFile);
 
-        roundTripNG(input, input);
+        roundTripPNGJ(input, input);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class PngSuiteImagesTest {
         assertEquals(8, tiled.getTileWidth());
         assertEquals(8, tiled.getTileHeight());
 
-        roundTripNG(input, tiled);
+        roundTripPNGJ(input, tiled);
     }
 
     private void roundTripNG(BufferedImage original, RenderedImage source) throws IOException {
@@ -136,16 +136,20 @@ public class PngSuiteImagesTest {
         if (indexed) {
             IndexColorModel icm = (IndexColorModel) colorModel;
             PngChunkPLTE palette = pw.getMetadata().createPLTEChunk();
-            int ncolors = icm.getNumComponents();
+            int ncolors = icm.getMapSize();
             palette.setNentries(ncolors);
             for (int i = 0; i < ncolors; i++) {
-                palette.setEntry(i, icm.getRed(i), icm.getGreen(i), icm.getBlue(i));
+                final int red = icm.getRed(i);
+                final int green = icm.getGreen(i);
+                final int blue = icm.getBlue(i);
+                palette.setEntry(i, red, green, blue);
             }
             if (icm.hasAlpha()) {
                 PngChunkTRNS transparent = new PngChunkTRNS(ii);
                 int[] alpha = new int[ncolors];
                 for (int i = 0; i < ncolors; i++) {
-                    alpha[i] = icm.getAlpha(i);
+                    final int a = icm.getAlpha(i);
+                    alpha[i] = a;
                 }
                 transparent.setPalletteAlpha(alpha);
                 pw.getChunksList().queue(transparent);
@@ -154,8 +158,7 @@ public class PngSuiteImagesTest {
         }
 
         for (int row = 0; row < source.getHeight(); row++) {
-            byte[] bytes = scanlines.next();
-            pw.writeRow(new ImageLineByte(ii, bytes));
+            pw.writeRow(scanlines);
         }
         pw.end();
 

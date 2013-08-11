@@ -4,7 +4,9 @@ import java.awt.image.IndexColorModel;
 
 import org.geoserver.png.ng.ColorType;
 
-public interface ScanlineProvider {
+import ar.com.hjg.pngj.IImageLine;
+
+public interface ScanlineProvider extends IImageLine {
 
     /**
      * Image width
@@ -26,6 +28,12 @@ public interface ScanlineProvider {
     public byte getBitDepth();
     
     /**
+     * The number of byte[] elements in the scaline
+     * @return
+     */
+    public int getScanlineLength();
+    
+    /**
      * The color type of this image
      */
     public ColorType getColorType();
@@ -35,7 +43,7 @@ public interface ScanlineProvider {
      * 
      * @return
      */
-    byte[] next();
+    void next(byte[] scaline, int offset, int length);
     
     /**
      * Returns the palette for this image, or null if the image does not have one 

@@ -12,70 +12,28 @@ import org.geoserver.png.ng.ColorType;
  * 
  * @author Andrea Aime - GeoSolutions
  */
-public final class RasterByteABGRProvider implements ScanlineProvider {
-
-    final Raster raster;
+public final class RasterByteABGRProvider extends AbstractScanlineProvider {
 
     final byte[] bytes;
-
-    final byte[] row;
-
-    final int rowLength;
-
-    final boolean hasAlpha;
-
-    final ColorType colorType;
-
     final boolean bgrOrder;
-    
-    final ScanlineCursor cursor;
-    
+
     public RasterByteABGRProvider(Raster raster, boolean hasAlpha) {
-        this.raster = raster;
-        bytes = ((DataBufferByte) raster.getDataBuffer()).getData();
-        this.hasAlpha = hasAlpha;
-        if (hasAlpha) {
-            rowLength = raster.getWidth() * 4;
-            colorType = ColorType.RGBA;
-        } else {
-            rowLength = raster.getWidth() * 3;
-            colorType = ColorType.RGB;
-        }
+        super(raster, 8, raster.getWidth() * (hasAlpha ? 4 : 3), hasAlpha ? ColorType.RGBA : ColorType.RGB);
+        this.bytes = ((DataBufferByte) raster.getDataBuffer()).getData();
         ComponentSampleModel sm = (ComponentSampleModel) raster.getSampleModel();
-        bgrOrder = sm.getBandOffsets()[0] != 0;
-        cursor = new ScanlineCursor(raster);
-        row = new byte[rowLength];
+        this.bgrOrder = sm.getBandOffsets()[0] != 0;
     }
 
     @Override
-    public int getWidth() {
-        return raster.getWidth();
-    }
-
-    @Override
-    public int getHeight() {
-        return raster.getHeight();
-    }
-
-    @Override
-    public byte getBitDepth() {
-        return 8;
-    }
-
-    @Override
-    public ColorType getColorType() {
-        return colorType;
-    }
-
-    @Override
-    public byte[] next() {
+    public void next(final byte[] row, final int offset, final int length) {
         int bytesIdx = cursor.next();
-        int i = 0;
+        int i = offset;
+        final int max = offset + length;
         if (!bgrOrder) {
-            System.arraycopy(bytes, bytesIdx, row, 0, rowLength);
+            System.arraycopy(bytes, bytesIdx, row, offset, length);
         } else {
-            if (hasAlpha) {
-                while (i < rowLength) {
+            if (colorType == ColorType.RGBA) {
+                while (i < max) {
                     final byte a = bytes[bytesIdx++];
                     final byte b = bytes[bytesIdx++];
                     final byte g = bytes[bytesIdx++];
@@ -86,7 +44,7 @@ public final class RasterByteABGRProvider implements ScanlineProvider {
                     row[i++] = a;
                 }
             } else {
-                while (i < rowLength) {
+                while (i < max) {
                     final byte b = bytes[bytesIdx++];
                     final byte g = bytes[bytesIdx++];
                     final byte r = bytes[bytesIdx++];
@@ -96,13 +54,6 @@ public final class RasterByteABGRProvider implements ScanlineProvider {
                 }
             }
         }
-        return row;
-    }
-
-    @Override
-    public IndexColorModel getPalette() {
-        // no palette
-        return null;
     }
 
 }

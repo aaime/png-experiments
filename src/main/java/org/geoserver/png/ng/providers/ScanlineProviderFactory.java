@@ -12,6 +12,8 @@ import java.awt.image.SampleModel;
 
 import javax.media.jai.PlanarImage;
 
+import org.geoserver.png.ng.ColorType;
+
 public class ScanlineProviderFactory {
 
     public static ScanlineProvider getProvider(RenderedImage image) {
@@ -30,16 +32,19 @@ public class ScanlineProviderFactory {
             if (sm.getNumBands() == 3 || sm.getNumBands() == 4) {
                 return new RasterByteABGRProvider(raster, cm.hasAlpha());
             } else if (sm.getNumBands() == 2 && cm.hasAlpha()) {
-                return new RasterByteGrayAlphaProvider(raster);
+                return new RasterByteSingleBandProvider(raster, 8, 2 * raster.getWidth(), ColorType.GrayAlpha);
             } else if (sm.getNumBands() == 1) {
                 if (cm.getPixelSize() == 8) {
-                    return new RasterByteGrayProvider(raster);
+                    return new RasterByteSingleBandProvider(raster, 8, raster.getWidth(), ColorType.Grayscale);
                 } else if (cm.getPixelSize() == 4) {
-                    return new RasterFourBitsGrayProvider(raster);
+                    int scanlineLength = (raster.getWidth() + 1) / 2;
+                    return new RasterByteSingleBandProvider(raster, 4, scanlineLength, ColorType.Grayscale);
                 } else if (cm.getPixelSize() == 2) {
-                    return new RasterTwoBitsGrayProvider(raster);
+                    int scanlineLength = (raster.getWidth() + 2) / 4;
+                    return new RasterByteSingleBandProvider(raster, 2, scanlineLength, ColorType.Grayscale);
                 } else if (cm.getPixelSize() == 1) {
-                    return new RasterOneBitGrayProvider(raster);
+                    int scanlineLength = (raster.getWidth() + 4) / 8;
+                    return new RasterByteSingleBandProvider(raster, 1, scanlineLength, ColorType.Grayscale);
                 }
 
             }
@@ -49,28 +54,30 @@ public class ScanlineProviderFactory {
             } else if (sm.getNumBands() == 2 && cm.hasAlpha()) {
                 return new RasterShortGrayAlphaProvider(raster);
             } else if (sm.getNumBands() == 1) {
-                return new RasterShortGrayProvider(raster);
+                return new RasterShortSingleBandProvider(raster);
             }
         } else if (cm instanceof DirectColorModel && sm.getDataType() == DataBuffer.TYPE_INT) {
             if (sm.getNumBands() == 3 || sm.getNumBands() == 4) {
                 return new RasterIntABGRProvider(raster, cm.hasAlpha());
-            } else if (sm.getNumBands() == 1) {
-                return new RasterByteGrayProvider(raster);
-            }
+            } 
         } else if (cm instanceof IndexColorModel) {
             IndexColorModel icm = (IndexColorModel) cm;
             if (sm.getDataType() == DataBuffer.TYPE_BYTE) {
                 if (icm.getPixelSize() == 8) {
-                    return new RasterByteIndexedProvider(raster, icm);
+                    return new RasterByteSingleBandProvider(raster, 8, raster.getWidth(), icm);
                 } else if (icm.getPixelSize() == 4) {
-                    return new RasterFourBitsIndexedProvider(raster, icm);
+                    int scanlineLength = (raster.getWidth() + 1) / 2;
+                    return new RasterByteSingleBandProvider(raster, 4, scanlineLength, icm);
                 } else if (icm.getPixelSize() == 2) {
-                    return new RasterTwoBitsIndexedProvider(raster, icm);
+                    int scanlineLength = (raster.getWidth() + 2) / 4;
+                    return new RasterByteSingleBandProvider(raster, 2, scanlineLength, icm);
                 } else if (icm.getPixelSize() == 1) {
-                    return new RasterOneBitIndexedProvider(raster, icm);
+                    int scanlineLength = (raster.getWidth() + 4) / 8;
+                    return new RasterByteSingleBandProvider(raster, 1, scanlineLength, icm);
+
                 }
             } else if (sm.getDataType() == DataBuffer.TYPE_USHORT) {
-                return new RasterShortIndexedProvider(raster, (IndexColorModel) cm);
+                return new RasterShortSingleBandProvider(raster, (IndexColorModel) cm);
             }
         }
 

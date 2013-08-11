@@ -123,20 +123,6 @@ public class SamplesEncodingBenchmark {
     }
 
     @Test
-    public void timeNGEncode() throws Exception {
-        ScanlineProvider scanlines = ScanlineProviderFactory.getProvider(image);
-        Deflater deflater = new Deflater(compression);
-        PngEncoder encoder = new PngEncoder(scanlines, deflater, raster ? FilterType.Sub : FilterType.None);
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        encoder.encode(bos);
-        byte[] bytes = bos.toByteArray();
-        collectPng("ng", bytes);
-
-        // System.out.println(bos.size());
-    }
-
-    @Test
     public void timeCLibEncode() throws Exception {
         ImageWriter writer = new CLibPNGImageWriterSpi().createWriterInstance();
         ImageWriteParam iwp = writer.getDefaultWriteParam();
@@ -154,6 +140,20 @@ public class SamplesEncodingBenchmark {
         writer.write(null, new IIOImage(image, null, null), iwp);
         mos.flush();
         collectPng("clib", bos.toByteArray());
+        // System.out.println(bos.size());
+    }
+    
+    @Test
+    public void timeNGEncode() throws Exception {
+        ScanlineProvider scanlines = ScanlineProviderFactory.getProvider(image);
+        Deflater deflater = new Deflater(compression);
+        PngEncoder encoder = new PngEncoder(scanlines, deflater, raster ? FilterType.Sub : FilterType.None);
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        encoder.encode(bos);
+        byte[] bytes = bos.toByteArray();
+        collectPng("ng", bytes);
+
         // System.out.println(bos.size());
     }
 
@@ -217,9 +217,7 @@ public class SamplesEncodingBenchmark {
 
         ScanlineProvider scanlines = ScanlineProviderFactory.getProvider(image);
         for (int row = 0; row < image.getHeight(); row++) {
-            byte[] bytes = scanlines.next();
-            ImageLineByte il = new ImageLineByte(ii, bytes);
-            pw.writeRow(il);
+            pw.writeRow(scanlines);
         }
         pw.end();
         byte[] png = bos.toByteArray();

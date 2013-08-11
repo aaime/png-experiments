@@ -18,7 +18,9 @@ import org.geoserver.png.ng.providers.ScanlineProvider;
 import org.geoserver.png.ng.providers.ScanlineProviderFactory;
 import org.junit.AfterClass;
 import org.junit.FixMethodOrder;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.junit.runners.Parameterized;
@@ -26,12 +28,12 @@ import org.junit.runners.Parameterized.Parameters;
 
 import ar.com.hjg.pngj.FilterType;
 import ar.com.hjg.pngj.ImageInfo;
-import ar.com.hjg.pngj.ImageLineByte;
 import ar.com.hjg.pngj.PngWriter;
 import ar.com.hjg.pngj.chunks.PngChunkPLTE;
 import ar.com.hjg.pngj.chunks.PngChunkTRNS;
 
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
+import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 import com.carrotsearch.junitbenchmarks.annotation.AxisRange;
 import com.carrotsearch.junitbenchmarks.annotation.BenchmarkMethodChart;
 
@@ -46,8 +48,8 @@ public class PNJEncodingBenchmark {
 
     private static Map<String, byte[]> pngs = new ConcurrentHashMap<String, byte[]>();
 
-//    @Rule
-//    public TestRule benchmarkRun = new BenchmarkRule();
+    @Rule
+    public TestRule benchmarkRun = new BenchmarkRule();
 
     private static int lastImageType = Integer.MIN_VALUE;
 
@@ -83,7 +85,7 @@ public class PNJEncodingBenchmark {
         FilterType[] filters = new FilterType[] {FilterType.FILTER_NONE, FilterType.FILTER_SUB, 
                 FilterType.FILTER_AVERAGE, FilterType.FILTER_PAETH, 
                 FilterType.FILTER_DEFAULT, FilterType.FILTER_AGGRESSIVE, FilterType.FILTER_VERYAGGRESSIVE};
-        int[] compressions = new int[] {4, 5, 6, 7, 8, 9};
+        int[] compressions = new int[] {5 /*4, 5, 6, 7, 8, 9 */};
         
         List<Object[]> parameters = new ArrayList<Object[]>();
         for (int i = 0; i < types.length; i++) {
@@ -172,8 +174,7 @@ public class PNJEncodingBenchmark {
 
         ScanlineProvider scanlines = ScanlineProviderFactory.getProvider(image);
         for (int row = 0; row < image.getHeight(); row++) {
-            byte[] bytes = scanlines.next();
-            pw.writeRow(new ImageLineByte(ii, bytes));
+            pw.writeRow(scanlines);
 
         }
         pw.end();

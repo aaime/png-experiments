@@ -1,7 +1,6 @@
 package org.geoserver.png.ng.providers;
 
 import java.awt.image.DataBufferUShort;
-import java.awt.image.IndexColorModel;
 import java.awt.image.PixelInterleavedSampleModel;
 import java.awt.image.Raster;
 
@@ -12,55 +11,26 @@ import org.geoserver.png.ng.ColorType;
  * 
  * @author Andrea Aime - GeoSolutions
  */
-public class RasterShortGrayAlphaProvider implements ScanlineProvider {
-
-    final Raster raster;
+public final class RasterShortGrayAlphaProvider extends AbstractScanlineProvider {
 
     final short[] shorts;
-
-    final ScanlineCursor cursor;
-
-    final byte[] scanline;
 
     final boolean alphaFirst;
 
     public RasterShortGrayAlphaProvider(Raster raster) {
-        this.raster = raster;
+        super(raster, 16, raster.getWidth() * 4, ColorType.GrayAlpha);
         this.shorts = ((DataBufferUShort) raster.getDataBuffer()).getData();
-        int rowLength = raster.getWidth() * 4;
-        this.scanline = new byte[rowLength];
         int[] bandOffsets = ((PixelInterleavedSampleModel) raster.getSampleModel()).getBandOffsets();
         this.alphaFirst = bandOffsets[0] != 0;
-        this.cursor = new ScanlineCursor(raster);
     }
 
     @Override
-    public int getWidth() {
-        return raster.getWidth();
-    }
-
-    @Override
-    public int getHeight() {
-        return raster.getHeight();
-    }
-
-    @Override
-    public byte getBitDepth() {
-        return 16;
-    }
-
-    @Override
-    public ColorType getColorType() {
-        return ColorType.GrayAlpha;
-    }
-
-    @Override
-    public byte[] next() {
-        final int width = raster.getWidth();
+    public void next(final byte[] scanline, final int offset, final int length) {
         int shortsIdx = cursor.next();
-        int i = 0;
+        int i = offset;
+        final int max = offset + length;
         if(alphaFirst) {
-            while (i < scanline.length) {
+            while (i < max) {
                 final short alpha = shorts[shortsIdx++];
                 final short gray = shorts[shortsIdx++];
                 scanline[i++] = (byte) ((gray >> 8) & 0xFF);
@@ -69,7 +39,7 @@ public class RasterShortGrayAlphaProvider implements ScanlineProvider {
                 scanline[i++] = (byte) (alpha & 0xFF);
             } 
         } else {
-            while (i < scanline.length) {
+            while (i < max) {
                 final short gray = shorts[shortsIdx++];
                 final short alpha = shorts[shortsIdx++];
                 scanline[i++] = (byte) ((gray >> 8) & 0xFF);
@@ -78,13 +48,6 @@ public class RasterShortGrayAlphaProvider implements ScanlineProvider {
                 scanline[i++] = (byte) (alpha & 0xFF);
             }
         }
-
-        return scanline;
-    }
-
-    @Override
-    public IndexColorModel getPalette() {
-        return null;
     }
 
 }
