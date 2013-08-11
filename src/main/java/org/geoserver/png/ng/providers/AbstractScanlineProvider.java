@@ -76,21 +76,18 @@ public abstract class AbstractScanlineProvider implements ScanlineProvider {
         return scanlineLength;
     }
     
-    @Override
     public void readFromPngRaw(byte[] raw, int len, int offset, int step) {
         throw new UnsupportedOperationException("This bridge works write only");
 
     }
 
-    @Override
     public void endReadFromPngRaw() {
         throw new UnsupportedOperationException("This bridge works write only");
     }
 
-    @Override
     public void writeToPngRaw(byte[] raw) {
         // PNGJ stores in the first byte the filter type
-        next(raw, 1, raw.length - 1);
+        this.next(raw, 1, raw.length - 1);
     }
 
 

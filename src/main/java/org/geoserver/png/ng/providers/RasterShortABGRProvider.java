@@ -86,7 +86,6 @@ public final class RasterShortABGRProvider extends AbstractScanlineProvider {
                     scanline[i++] = (byte) (b & 0xFF);
                 }
             }
-
         }
     }
 

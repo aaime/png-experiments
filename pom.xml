@@ -32,7 +32,6 @@
       <groupId>ar.com.hjg</groupId>
       <artifactId>pngj</artifactId>
       <version>2.0.1</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.carrotsearch</groupId>
